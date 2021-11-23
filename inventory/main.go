@@ -1,6 +1,7 @@
 package main
 
 import (
+	"inventory/router"
 	"log"
 	"net/http"
 	"os"
@@ -21,6 +22,8 @@ func main() {
 		AllowHeaders:    []string{"Origin", "Authorization", "Content-type"},
 		AllowAllOrigins: true,
 	}))
+
+	r.POST("/food", router.GetFood)
 
 	r.Run("0.0.0.0:" + os.Getenv("BIND_ADDR")) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

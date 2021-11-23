@@ -23,7 +23,8 @@ func main() {
 		AllowAllOrigins: true,
 	}))
 
-	r.POST("/food", router.GetFood)
+	r.POST("/food", router.InputFood)
+	r.GET("/food", router.GetFood)
 
 	r.Run("0.0.0.0:" + os.Getenv("BIND_ADDR")) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

@@ -11,6 +11,7 @@ router
 router
     .route("/:id")
     .patch(foodHandler.updateFood)
+    .delete(foodHandler.deleteFood)
 
 
 module.exports = router;

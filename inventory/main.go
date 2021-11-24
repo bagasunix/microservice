@@ -23,6 +23,8 @@ func main() {
 		AllowAllOrigins: true,
 	}))
 
+	r.GET("/", handleTest)
+
 	r.POST("/food", router.InputFood)
 	r.GET("/food", router.GetFood)
 	r.PATCH("/food/:id", router.EditFood)

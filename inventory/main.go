@@ -26,6 +26,7 @@ func main() {
 	r.POST("/food", router.InputFood)
 	r.GET("/food", router.GetFood)
 	r.PATCH("/food/:id", router.EditFood)
+	r.DELETE("/food/:id", router.DeleteFood)
 
 	r.Run("0.0.0.0:" + os.Getenv("BIND_ADDR")) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

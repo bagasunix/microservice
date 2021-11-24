@@ -157,3 +157,22 @@ func EditFood(c *gin.Context) {
 		"message": "food edited successfully",
 	})
 }
+
+func DeleteFood(c *gin.Context) {
+	id := c.Param("id")
+
+	_, err := foodCollection.DeleteOne(context.Background(), bson.M{"food_id": id})
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"status":  "failed",
+			"message": err.Error(),
+		})
+		c.Abort()
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "food deleted successfully",
+	})
+}

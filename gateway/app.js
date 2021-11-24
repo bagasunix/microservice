@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -8,7 +9,7 @@ const xss = require("xss-clean");
 
 
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const foodRouter = require('./routes/food');
 
 // setup route middlewares
 // Limit requests from same API
@@ -35,6 +36,6 @@ app.use("/", limiter);
 
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/food', foodRouter);
 
 module.exports = app;

@@ -201,7 +201,7 @@ func GetFoodById(c *gin.Context) {
 	var foodData structs.Food
 
 	if err := foodCollection.FindOne(context.Background(), bson.M{"food_id": id}).Decode(&foodData); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+		c.IndentedJSON(http.StatusNotFound, gin.H{
 			"status":  "failed",
 			"message": "Food not found with that ID",
 		})

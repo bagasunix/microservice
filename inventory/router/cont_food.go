@@ -118,6 +118,15 @@ func EditFood(c *gin.Context) {
 		return
 	}
 
+	if err := foodCollection.FindOne(context.Background(), bson.M{"food_id": id}).Decode(&foodData); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"status":  "failed",
+			"message": "Food not found with that ID",
+		})
+		c.Abort()
+		return
+	}
+
 	// add updated_at, updated_by
 	foodData.UpdatedAt = time.Now()
 

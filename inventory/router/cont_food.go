@@ -119,7 +119,7 @@ func EditFood(c *gin.Context) {
 	}
 
 	if err := foodCollection.FindOne(context.Background(), bson.M{"food_id": id}).Decode(&foodData); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+		c.IndentedJSON(http.StatusNotFound, gin.H{
 			"status":  "failed",
 			"message": "Food not found with that ID",
 		})
@@ -169,6 +169,16 @@ func EditFood(c *gin.Context) {
 
 func DeleteFood(c *gin.Context) {
 	id := c.Param("id")
+	var foodData structs.Food
+
+	if err := foodCollection.FindOne(context.Background(), bson.M{"food_id": id}).Decode(&foodData); err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{
+			"status":  "failed",
+			"message": "Food not found with that ID",
+		})
+		c.Abort()
+		return
+	}
 
 	_, err := foodCollection.DeleteOne(context.Background(), bson.M{"food_id": id})
 	if err != nil {
@@ -193,7 +203,7 @@ func GetFoodById(c *gin.Context) {
 	if err := foodCollection.FindOne(context.Background(), bson.M{"food_id": id}).Decode(&foodData); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{
 			"status":  "failed",
-			"message": err.Error(),
+			"message": "Food not found with that ID",
 		})
 		c.Abort()
 		return

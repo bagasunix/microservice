@@ -3,7 +3,10 @@ const router = express.Router();
 
 const foodHandler = require("./inventory");
 
-router.get("/", foodHandler.getFood);
+router
+    .route("/")
+    .get(foodHandler.getFood)
+    .post(foodHandler.createFood)
 
 
 module.exports = router;

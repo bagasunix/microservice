@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -50,14 +50,13 @@ func InputFood(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 		return
 	}
+
 	// assing the time stamps upon creation
-	foodData.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-	foodData.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
-	//generate new ID for the object to be created
-	foodData.ID = primitive.NewObjectID()
+	foodData.CreatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	foodData.UpdatedAt, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 
 	// assign the the auto generated ID to the primary key attribute
-	foodData.Food_id = foodData.ID.Hex()
+	foodData.Food_id = uuid.NewString()
 	var num = ToFixed(*foodData.Price, 2)
 	foodData.Price = &num
 	//insert the newly created object into mongodb
@@ -86,8 +85,8 @@ func GetFood(c *gin.Context) {
 		return
 	}
 
-	var careers []structs.Food
-	if err = cursor.All(context.TODO(), &careers); err != nil {
+	var foodData []structs.Food
+	if err = cursor.All(context.TODO(), &foodData); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{
 			"status":  "failed",
 			"message": err.Error(),
@@ -96,13 +95,65 @@ func GetFood(c *gin.Context) {
 		return
 	}
 
-	if len(careers) == 0 {
-		careers = []structs.Food{}
+	if len(foodData) == 0 {
+		foodData = []structs.Food{}
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"status": "success",
-		"data":   careers,
+		"data":   foodData,
 	})
+}
 
+func EditFood(c *gin.Context) {
+	id := c.Param("id")
+	var foodData structs.Food
+
+	if err := c.BindJSON(&foodData); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"status":  "failed",
+			"message": "can't bind struct",
+		})
+		c.Abort()
+		return
+	}
+
+	// add updated_at, updated_by
+	foodData.UpdatedAt = time.Now()
+
+	// update process
+	pByte, err := bson.Marshal(foodData)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"status":  "failed",
+			"message": err.Error(),
+		})
+		c.Abort()
+		return
+	}
+
+	var update bson.M
+	err = bson.Unmarshal(pByte, &update)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"status":  "failed",
+			"message": err.Error(),
+		})
+		c.Abort()
+		return
+	}
+
+	_, err = foodCollection.UpdateOne(context.Background(), bson.M{"food_id": id}, bson.M{"$set": update})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "food edited successfully",
+	})
 }

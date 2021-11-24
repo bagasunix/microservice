@@ -8,5 +8,9 @@ router
     .get(foodHandler.getFood)
     .post(foodHandler.createFood)
 
+router
+    .route("/:id")
+    .patch(foodHandler.updateFood)
+
 
 module.exports = router;

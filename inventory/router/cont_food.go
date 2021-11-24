@@ -176,3 +176,22 @@ func DeleteFood(c *gin.Context) {
 		"message": "food deleted successfully",
 	})
 }
+
+func GetFoodById(c *gin.Context) {
+	id := c.Param("id")
+	var foodData structs.Food
+
+	if err := foodCollection.FindOne(context.Background(), bson.M{"food_id": id}).Decode(&foodData); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"status":  "failed",
+			"message": err.Error(),
+		})
+		c.Abort()
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   foodData,
+	})
+}
